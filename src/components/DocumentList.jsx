@@ -10,14 +10,18 @@ const DocumentList = () => {
   const [filteredDocuments, setFilteredDocuments] = React.useState(mockDocuments);
 
   React.useEffect(() => {
-    let filtered = mockDocuments.filter(doc =>
-      doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.content.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    let filtered = mockDocuments.filter(doc => {
+      // flatten content blocks into a string for searching
+      const contentText = doc.content.map(block => block.content).join(' ');
+      return (
+        doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contentText.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
 
     filtered.sort((a, b) => {
       if (sortBy === 'modified') {
-        return new Date(b.lastModified) - new Date(a.lastModified);
+        return new Date(b.updatedAt) - new Date(a.updatedAt);
       } else if (sortBy === 'title') {
         return a.title.localeCompare(b.title);
       } else if (sortBy === 'created') {
@@ -137,13 +141,13 @@ const DocumentList = () => {
                           <MoreHorizontal className="w-4 h-4 text-slate-400" />
                         </button>
                       </div>
-                      
-                    <p className="text-slate-600 text-sm leading-relaxed mb-4">
-  {truncateContent(
-    document.content.find(block => block.type === "paragraph")?.content || ""
-  )}
-</p>
 
+                      {/* Document Preview */}
+                      <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                        {truncateContent(
+                          document.content.find(block => block.type === 'paragraph')?.content || ''
+                        )}
+                      </p>
                     </div>
 
                     {/* Document Footer */}
@@ -151,7 +155,7 @@ const DocumentList = () => {
                       <div className="flex items-center justify-between text-xs text-slate-500">
                         <div className="flex items-center space-x-1">
                           <Clock className="w-3 h-3" />
-                          <span>{formatDate(document.lastModified)}</span>
+                          <span>{formatDate(document.updatedAt)}</span>
                         </div>
                         <div className="flex items-center space-x-2">
                           {document.tags && document.tags.map((tag, tagIndex) => (
@@ -188,7 +192,7 @@ const DocumentList = () => {
                 <p className="text-sm text-slate-500">Start with a template</p>
               </div>
             </Link>
-            
+
             <Link
               to="/editor/new?template=project-plan"
               className="flex items-center p-4 border border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
@@ -201,7 +205,7 @@ const DocumentList = () => {
                 <p className="text-sm text-slate-500">Organize your project</p>
               </div>
             </Link>
-            
+
             <Link
               to="/editor/new"
               className="flex items-center p-4 border border-slate-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
