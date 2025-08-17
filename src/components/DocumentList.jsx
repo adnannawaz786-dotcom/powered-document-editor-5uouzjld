@@ -138,9 +138,12 @@ const DocumentList = () => {
                         </button>
                       </div>
                       
-                      <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                        {truncateContent(document.content)}
-                      </p>
+                    <p className="text-slate-600 text-sm leading-relaxed mb-4">
+  {truncateContent(
+    document.content.find(block => block.type === "paragraph")?.content || ""
+  )}
+</p>
+
                     </div>
 
                     {/* Document Footer */}
